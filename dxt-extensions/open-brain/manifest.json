@@ -1,0 +1,50 @@
+{
+  "manifest_version": "0.3",
+  "name": "open-brain",
+  "display_name": "Open Brain",
+  "version": "1.0.0",
+  "description": "Personal knowledge MCP — semantic search, capture, and stats for thoughts stored in your Supabase brain. Bridges Claude Desktop (stdio) to your remote OB1 Edge Function (HTTP).",
+  "long_description": "Open Brain (OB1) is the personal knowledge layer originally created by Nate B. Jones. This extension bridges Claude Desktop's stdio MCP transport to your deployed OB1 Supabase Edge Function over HTTPS, so Chat and Cowork sessions can search, list, and capture thoughts in your Supabase-backed brain.\n\nAll four core tools are available:\n- search_thoughts (semantic search)\n- list_thoughts (recent thoughts)\n- thought_stats (counts + top topics + people)\n- capture_thought (save with auto-extracted metadata)",
+  "author": {
+    "name": "Justin Lee"
+  },
+  "server": {
+    "type": "node",
+    "entry_point": "index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/index.js"
+      ],
+      "env": {}
+    }
+  },
+  "tools": [
+    {
+      "name": "search_thoughts",
+      "description": "Semantic search across captured thoughts in Open Brain"
+    },
+    {
+      "name": "list_thoughts",
+      "description": "List recent thoughts from Open Brain"
+    },
+    {
+      "name": "thought_stats",
+      "description": "Statistics about your Open Brain — counts, top topics, people mentioned"
+    },
+    {
+      "name": "capture_thought",
+      "description": "Save a new thought to Open Brain (auto-extracts metadata and embedding)"
+    }
+  ],
+  "compatibility": {
+    "platforms": [
+      "win32",
+      "darwin",
+      "linux"
+    ],
+    "runtimes": {
+      "node": ">=18.0.0"
+    }
+  }
+}

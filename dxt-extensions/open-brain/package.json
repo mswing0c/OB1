@@ -1,0 +1,8 @@
+{
+  "name": "open-brain-dxt",
+  "version": "1.0.0",
+  "description": "Open Brain (OB1) HTTP→stdio MCP bridge for Claude Desktop",
+  "main": "index.js",
+  "private": true,
+  "license": "MIT"
+}
