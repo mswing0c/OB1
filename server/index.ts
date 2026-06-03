@@ -34,7 +34,38 @@ async function getEmbedding(text: string): Promise<number[]> {
   return d.data[0].embedding;
 }
 
+// --- Metadata normalization (deterministic guard) ---
+// Root cause of the 4-week "untyped rows" regression: gpt-4o-mini, given a
+// "[Claude Code: ... | YYYY-MM-DD] I decided ..." capture, returns valid JSON
+// that OMITS the "type" key. JSON.parse succeeds, so the old catch-block default
+// never fired and the row was inserted untyped. These helpers guarantee type +
+// topics are always set, independent of the LLM. Verb list mirrors Pass 4.1.
+
+const VALID_TYPES = ["observation", "task", "idea", "reference", "person_note", "decision"];
+const DECISION_VERBS =
+  /\bI (decided|chose|implemented|created|recommends?|recommended|added|built|wrote|set up|structured|generated|made|introduced)\b/i;
+
+function stripCapturePreamble(text: string): string {
+  // Remove a leading "[Claude Code: <prompt> | YYYY-MM-DD]" (or "(subagent)") prefix
+  // so the LLM classifies the actual statement, not the IDE preamble.
+  return text.replace(/^\[Claude Code[^\]]*\|\s*\d{4}-\d{2}-\d{2}\]\s*/s, "");
+}
+
+function inferType(content: string): "decision" | "observation" {
+  return DECISION_VERBS.test(content) ? "decision" : "observation";
+}
+
+function normalizeMetadata(raw: unknown, content: string): Record<string, unknown> {
+  const meta = raw && typeof raw === "object" ? { ...(raw as Record<string, unknown>) } : {};
+  if (!Array.isArray(meta.topics) || meta.topics.length === 0) meta.topics = ["uncategorized"];
+  if (typeof meta.type !== "string" || !VALID_TYPES.includes(meta.type as string)) {
+    meta.type = inferType(content);
+  }
+  return meta;
+}
+
 async function extractMetadata(text: string): Promise<Record<string, unknown>> {
+  const cleaned = stripCapturePreamble(text);
   const r = await fetch(`${OPENROUTER_BASE}/chat/completions`, {
     method: "POST",
     headers: {
@@ -55,15 +86,18 @@ async function extractMetadata(text: string): Promise<Record<string, unknown>> {
 - "type": one of "observation", "task", "idea", "reference", "person_note"
 Only extract what's explicitly there.`,
         },
-        { role: "user", content: text },
+        { role: "user", content: cleaned },
       ],
     }),
   });
-  const d = await r.json();
+  // All failure modes (network, malformed body, missing "type" field) funnel
+  // through the same deterministic guard — every path returns a typed row.
   try {
-    return JSON.parse(d.choices[0].message.content);
+    const d = await r.json();
+    const parsed = JSON.parse(d.choices[0].message.content);
+    return normalizeMetadata(parsed, text);
   } catch {
-    return { topics: ["uncategorized"], type: "observation" };
+    return normalizeMetadata({}, text);
   }
 }
 

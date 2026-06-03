@@ -1,0 +1,4 @@
+claude-session-sync-log.json
+claude-session-sync.log
+*.env
+__pycache__/

@@ -1,0 +1,18 @@
+{
+  "name": "Claude Session Import",
+  "description": "Walk local Claude Code and Cowork JSONL session files, filter trivial sessions, summarize each via LLM into standalone thoughts, and ingest them into Open Brain with embeddings. Supports a 7-day backfill and recurring daily sync via Windows Task Scheduler.",
+  "category": "recipes",
+  "author": {
+    "name": "Justin Lee"
+  },
+  "version": "1.0.0",
+  "requires": {
+    "open_brain": true,
+    "services": ["OpenRouter"],
+    "tools": ["Python 3.10+", "Claude Code or Claude Cowork (local installation)"]
+  },
+  "tags": ["claude", "claude-code", "cowork", "import", "conversations", "summarization", "scheduled-sync"],
+  "difficulty": "intermediate",
+  "estimated_time": "30 minutes",
+  "created": "2026-04-27"
+}
