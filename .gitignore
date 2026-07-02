@@ -1,7 +1,6 @@
 node_modules/
 .DS_Store
 .planning/
-supabase/
 
 # Recipe credentials & runtime state
 .env
