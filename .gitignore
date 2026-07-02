@@ -12,3 +12,6 @@ sync-log.json
 
 # Built DXT extension artifacts (source lives in dxt-extensions/<name>/; repo guard rail forbids committing .zip)
 dxt-extensions/*.zip
+
+# Supabase CLI local cache
+supabase/.temp/
